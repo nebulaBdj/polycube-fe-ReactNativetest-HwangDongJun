@@ -1,14 +1,45 @@
-import { Text, View, StyleSheet } from "react-native";
-import { Link } from "expo-router";
+import { useContext, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  TextInput,
+  Button,
+} from "react-native";
+import { HistoryContext } from "../contexts/HistoryContext";
+import { useRouter } from "expo-router";
 
 export default function Index() {
+  const [url, setUrl] = useState("");
+  const { addHistory } = useContext(HistoryContext);
+  const { push } = useRouter();
+
+  const handleGoBtn = () => {
+    if (!url) return;
+
+    const formatUrl = url.startsWith("http") ? url : `https://${url}/`;
+    console.log("url", formatUrl);
+    addHistory(formatUrl);
+    push({
+      pathname: "/webview",
+      params: { url: formatUrl },
+    });
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Home screen</Text>
-      <Link href="/about" style={styles.button}>
-        Go to About screen
-      </Link>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>접속하고자 하는 url을 입력해주세요 😀</Text>
+      <View style={{ flexDirection: "row" }}>
+        <TextInput
+          value={url}
+          onChangeText={setUrl}
+          placeholder="https://example.com"
+          style={styles.input}
+        />
+        <Button title="Go" onPress={handleGoBtn} />
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -19,12 +50,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  text: {
+  title: {
     color: "#fff",
+    fontSize: 18,
+    marginBottom: 28,
   },
-  button: {
-    fontSize: 20,
-    textDecorationLine: "underline",
+  input: {
+    height: 40,
+    borderColor: "#fff",
+    borderWidth: 1,
+    marginRight: 10,
+    paddingHorizontal: 8,
     color: "#fff",
   },
 });
