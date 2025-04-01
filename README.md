@@ -120,23 +120,36 @@ React Native의 Application 구조는 위 사진과 같습니다. 자바스크�
 <br />
 <br />
 
+## 주요 기능 - Bottom navigation 적용
+
+먼저 기반이 되는 구조를 짜는 것이 우선시 되어야 한다고 생각하여 Bottom navigation을 먼저 구현했습니다.
+
+구현하고자 하는 방식은 url을 입력하면, 표시 가능한 웹에 한해서 웹뷰로 보여주고, 그 입력했던 값들을 기록해 주는 앱을 구현할 예정입니다.
+페이지 자체가 두 페이지이기 때문에 Expo에 내재되어 있는 expo-router를 이용해 간단히 구현했습니다.
+
+먼저 Bottom navigation을 구현하기 위해 지켜야 할 Expo Router의 기본 개념 및 규칙을 정리했습니다.
+
+**Expo Router**
+
+Expo Router은 React Native를 위한 파일 기반 라우팅 프레임워크입니다.
+
+- app directory : Expo Router는 app 디렉터리 내의 파일들을 자동으로 라우트로 인식합니다. 이 디렉터리 안에 있는 모든 파일과 폴더는 네비게이션 경로로 매핑되어, 각 화면과 페이지로 됩니다.
+- Root layout : app/\_layout.tsx 파일이고, 여기서 헤더와 탭 바와 같은 공유 UI 요소를 정의할 수 있습니다.
+- File name conventions : index.tsx와 같은 Index 파일은 부모 디렉토리를 경로로 사용합니다. 그 외의 파일들은 자신의 파일 이름이 라우팅 경로가 됩니다.
+
+<br />
+<br />
+
 ## 주요 기능 - 컨텐츠 표시
 
 ```bash
 npm install --save react-native-webview
 ```
 
-으로 react-native-webview 라이브러리를 이용해 웹뷰 컨텐츠를 보여줍니다. 해당 앱의 주요 기능은 원하는 웹 url 입력 시, 그 url의 웹뷰를 보여주는 것입니다.
-
 <br />
 <br />
 
 ## 주요 기능 - 광고 ID 읽기 및 표시
-
-<br />
-<br />
-
-## 주요 기능 - Bottom navigation 적용
 
 <br />
 <br />
