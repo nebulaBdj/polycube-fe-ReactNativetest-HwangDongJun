@@ -14,6 +14,7 @@ export default function TabLayout() {
         headerTintColor: "#fff",
         tabBarStyle: {
           backgroundColor: "#25292e",
+          height: 56,
         },
       }}
     >
@@ -25,22 +26,20 @@ export default function TabLayout() {
             <Ionicons
               name={focused ? "home-sharp" : "home-outline"}
               color={color}
-              size={24}
+              size={20}
             />
           ),
         }}
       />
       <Tabs.Screen
-        name="about"
+        name="history"
         options={{
-          title: "About",
+          title: "History",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={
-                focused ? "information-circle" : "information-circle-outline"
-              }
+              name={focused ? "layers" : "layers-outline"}
               color={color}
-              size={24}
+              size={20}
             />
           ),
         }}
