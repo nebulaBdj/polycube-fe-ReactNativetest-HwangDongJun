@@ -81,9 +81,9 @@ React Native (모바일): 모바일 기기의 네이티브 컴포넌트를 사�
 위 사진을 기반으로 설명하자면
 
 1. iOS나 안드로이드에서 터치와 같은 행위를 통해 event를 감지합니다.
-2. 해당 event에 대한 데이터 수집을 진행합니다. (ex) 화면의 어디에서 event가 발생했는지, 시간이 어느정도 걸렸는지 등
+2. 해당 event에 대한 데이터 수집을 진행합니다. (ex) 스크린의 어디에서 event가 발생했는지, 시간이 어느정도 걸렸는지 등
 3. 2번에서의 정보를 가지고 JSON 메시지를 생성합니다.
-4. JS가 그 메시지를 받아 코드를 실행하여 화면에 적용합니다.
+4. JS가 그 메시지를 받아 코드를 실행하여 스크린에 적용합니다.
 
 **React Native의 단점**
 
@@ -124,7 +124,9 @@ React Native의 Application 구조는 위 사진과 같습니다. 자바스크�
 
 먼저 기반이 되는 구조를 짜는 것이 우선시 되어야 한다고 생각하여 Bottom navigation을 먼저 구현했습니다.
 
-구현하고자 하는 방식은 url을 입력하면, 표시 가능한 웹에 한해서 웹뷰로 보여주고, 그 입력했던 값들을 기록해 주는 앱을 구현할 예정입니다.
+구현하고자 하는 방식은 url을 입력하면, 표시 가능한 웹에 한해서 웹뷰로 보여주고, 그 입력했던 주소들을 기록해 주는 앱을 구현할 예정입니다.
+(웹 url을 입력하는 스크린과 그 기록을 확인할 수 있는 스크린을 구현하는 과정은 UI 디자인 및 사용자 경험[요구사항 2.4] 과정에서 설명하겠습니다.)
+
 페이지 자체가 두 페이지이기 때문에 Expo에 내재되어 있는 expo-router를 이용해 간단히 구현했습니다.
 
 먼저 Bottom navigation을 구현하기 위해 지켜야 할 Expo Router의 기본 개념 및 규칙을 정리했습니다.
@@ -133,23 +135,220 @@ React Native의 Application 구조는 위 사진과 같습니다. 자바스크�
 
 Expo Router은 React Native를 위한 파일 기반 라우팅 프레임워크입니다.
 
-- app directory : Expo Router는 app 디렉터리 내의 파일들을 자동으로 라우트로 인식합니다. 이 디렉터리 안에 있는 모든 파일과 폴더는 네비게이션 경로로 매핑되어, 각 화면과 페이지로 됩니다.
+- app directory : Expo Router는 app 디렉터리 내의 파일들을 자동으로 라우트로 인식합니다. 이 디렉터리 안에 있는 모든 파일과 폴더는 네비게이션 경로로 매핑되어, 각 스크린과 페이지로 됩니다.
 - Root layout : app/\_layout.tsx 파일이고, 여기서 헤더와 탭 바와 같은 공유 UI 요소를 정의할 수 있습니다.
 - File name conventions : index.tsx와 같은 Index 파일은 부모 디렉토리를 경로로 사용합니다. 그 외의 파일들은 자신의 파일 이름이 라우팅 경로가 됩니다.
+
+**최상위 페이지 라우팅**
+
+먼저 최상위 app 폴더에 \_layout.tsx 파일을 만들어 루트 레이아웃을 설정해 줍니다.
+
+```tsx
+import { Stack } from "expo-router";
+import { HistoryProvider } from "./contexts/HistoryContext";
+
+export default function RootLayout() {
+  return (
+    <HistoryProvider>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="webview" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+    </HistoryProvider>
+  );
+}
+```
+
+url을 입력할 탭에 관련된 주소를 처리하고자 Stack.screen 태그의 name에 (tabs)을 입력해주고, app 하위로 (tabs) 폴더를 만들어줬습니다.
+그리고 웹뷰는 별도의 스크린으로 관리할 것이기에 따로 작성해주었습니다.
+경로가 잘못되었을 때에 대비하여 Stack.screen 태그의 name에 +not-found.tsx를 입력합니다. +not-found.tsx 파일 이름 자체가 “없는 라우트”를 처리하는 규칙을 나타냅니다.
+
+주소에 맞춰서 원하는 스크린을 보여주기 위해 아래와 같이 폴더 구조를 설계했습니다.
+
+```
+app
+ ┣ (tabs)
+ ┃  ┣ _layout.tsx
+ ┃  ┣ history.tsx
+ ┃  ┗ index.tsx
+ ┣ _layout.tsx
+ ┣ +not-found.tsx
+ ┗ webview.tsx
+```
+
+**하단 Tab 즉 Bottom Navigation에 대한 라우팅**
+
+app 폴더 하위에 만든 (tabs) 폴더에 \_layout.tsx 파일을 생성하고 Tab 태그를 이용해 하단 Tab을 구현합니다.
+
+```tsx
+import { Tabs } from "expo-router";
+
+export default function TabLayout() {
+  return (
+    <Tabs>
+      <Tabs.Screen name="index" options={{ title: "Home" }} />
+      <Tabs.Screen name="about" options={{ title: "About" }} />
+    </Tabs>
+  );
+}
+```
+
+위와 같이 입력하고 name과 동일한 이름의 파일을 만든 후, expo-router의 Link 태그나 useRouter.push를 가져와 `/(tabs)/history`를 입력하여 원하는 스크린으로 이동할 수 있습니다. index.tsx는 부모 디렉토리를 경로로 사용하기 때문에 `/(tabs)`를 입력하면 index.tsx를 보여주는 스크린으로 이동할 수 있습니다.
 
 <br />
 <br />
 
 ## 주요 기능 - 컨텐츠 표시
 
+react-native-webview를 설치해 웹 페이지를 보여줬습니다.
+
 ```bash
 npm install --save react-native-webview
 ```
+
+**임의의 웹사이트 webview로 표시**
+
+app 폴더 하위에 webview.tsx를 만들고 webview를 보여줄 수 있도록 코드를 작성합니다. webview를 보여줄려면 webview 태그에 넓이와 위치를 지정해 주어야 합니다. 저는 전체 스크린에 맞춰 보여주기 위해서 react-native의 Dimensions를 이용해 보여지는 창의 넓이와 높이를 가져와 WebView 태그에 지정해 주었습니다.
+
+```tsx
+import { StyleSheet, SafeAreaView, Dimensions } from "react-native";
+import WebView from "react-native-webview";
+
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
+
+export default function WebViewLayout() {
+  return (
+    <SafeAreaView style={styles.container}>
+      <WebView
+        style={styles.webview}
+        source={{ uri: "https://www.naver.com/" }}
+      />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#25292e",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  webview: {
+    flex: 1,
+    width: windowWidth,
+    height: windowHeight,
+  },
+});
+```
+
+임의로 naver 주소를 입력했고, 정상적으로 스크린이 보여지는 것을 확인했습니다.
+
+**연결된 웹뷰에서 더 깊은 depth로 들어간 후 뒤로가기 진행 시 웹뷰에서 뒤로가기가 되는 것이 아닌 초기 스크린으로 돌아오는 문제 해결**
+
+그냥 WebView만 이용해서 웹 사이트를 접속하면, 해당 웹뷰에서 특정 작업을 진행한 후 뒤로가기를 했을 때, 그 웹뷰 내에서 작동하는 것이 아니라 전체 흐름에서 작동하기 때문에 초기 스크린으로 돌아가게 됩니다.
+
+이를 방지하기 위해선 뒤로가기에 대해 새로운 이벤트를 지정해줘야 합니다.
+
+먼저 WebView를 통해 연결한 웹사이트에서 뒤로가기가 가능한 상태인지 확인하기 위해 ref와 navState를 생성해 WebView와 연동합니다.
+
+```tsx
+import { useEffect, useRef, useState } from "react";
+import {
+  StyleSheet,
+  SafeAreaView,
+  Dimensions,
+  BackHandler,
+} from "react-native";
+import WebView from "react-native-webview";
+import { WebViewNavigation } from "react-native-webview";
+
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
+
+export default function WebViewLayout() {
+  const ref = useRef<WebView>(null);
+  const [navState, setNavState] = useState<WebViewNavigation>();
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <WebView
+        ref={ref}
+        onNavigationStateChange={(e) => setNavState(e)}
+        style={styles.webview}
+        source={{ uri: "https://www.naver.com/" }}
+      />
+    </SafeAreaView>
+  );
+}
+```
+
+연동한 상태에 따라 뒤로가기 버튼을 누르는 이벤트가 발생했을때, WebView의 상태를 확인하고, 뒤로가기 버튼 기능이 적절하게 작동되도록 설정합니다.
+
+useEffect를 통해서 navState가 변경될 때마다 이를 체크합니다.
+
+```tsx
+import { useEffect, useRef, useState } from "react";
+import {
+  StyleSheet,
+  SafeAreaView,
+  Dimensions,
+  BackHandler,
+} from "react-native";
+import WebView from "react-native-webview";
+import { WebViewNavigation } from "react-native-webview";
+
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
+
+export default function WebViewLayout() {
+  const ref = useRef<WebView>(null);
+  const [navState, setNavState] = useState<WebViewNavigation>();
+
+  useEffect(() => {
+    if (!navState) return;
+    const canGoback = navState.canGoBack;
+
+    const onPress = () => {
+      if (canGoback && ref.current) {
+        ref.current.goBack();
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", onPress);
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", onPress);
+    };
+  }, [navState, setNavState]);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <WebView
+        ref={ref}
+        onNavigationStateChange={(e) => setNavState(e)}
+        style={styles.webview}
+        source={{ uri: "https://www.naver.com/" }}
+      />
+    </SafeAreaView>
+  );
+}
+```
+
+이렇게하여 접속한 웹사이트를 이용할 수 있는 WebViewLayout을 구현했습니다.
 
 <br />
 <br />
 
 ## 주요 기능 - 광고 ID 읽기 및 표시
+
+안드로이드에서는 GAID를 읽어오면 되고, iOS에서는 IDFA를 읽어와서 해당 ID를 보여주는 코드를 작성하면 됩니다.
+
+네이티브 코드를 직접 작성하기 위해 Expo Managed에서 Bare Workflow로 변경합니다.
 
 <br />
 <br />
