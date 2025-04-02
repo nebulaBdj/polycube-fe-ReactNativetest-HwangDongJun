@@ -1,6 +1,11 @@
 import { useGlobalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { StyleSheet, SafeAreaView, Dimensions, View } from "react-native";
+import {
+  StyleSheet,
+  SafeAreaView,
+  Dimensions,
+  BackHandler,
+} from "react-native";
 import WebView from "react-native-webview";
 import { WebViewNavigation } from "react-native-webview";
 
@@ -10,9 +15,36 @@ const windowHeight = Dimensions.get("window").height;
 export default function WebViewLayout() {
   const { url } = useGlobalSearchParams<{ url: string }>();
 
+  const ref = useRef<WebView>(null);
+  const [navState, setNavState] = useState<WebViewNavigation>();
+
+  useEffect(() => {
+    if (!navState) return;
+    const canGoback = navState.canGoBack;
+
+    const onPress = () => {
+      if (canGoback && ref.current) {
+        ref.current.goBack();
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    BackHandler.addEventListener("hardwareBackPress", onPress);
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", onPress);
+    };
+  }, [navState, setNavState]);
+
   return (
     <SafeAreaView style={styles.container}>
-      <WebView style={styles.webview} source={{ uri: url }} />
+      <WebView
+        ref={ref}
+        onNavigationStateChange={(e) => setNavState(e)}
+        style={styles.webview}
+        source={{ uri: url }}
+      />
     </SafeAreaView>
   );
 }
