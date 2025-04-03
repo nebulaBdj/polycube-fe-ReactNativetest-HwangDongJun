@@ -346,11 +346,305 @@ export default function WebViewLayout() {
 
 ## 주요 기능 - 광고 ID 읽기 및 표시
 
-안드로이드에서는 GAID를 읽어오면 되고, iOS에서는 IDFA를 읽어와서 해당 ID를 보여주는 코드를 작성하면 됩니다.
+확장성을 고려해 구글의 admob을 이용하기로 결정했습니다. 그래서 abmob을 편리하게 이용할 수 있는 react-native-google-mobile-ads를 사용합니다.
 
-네이티브 코드를 직접 작성하기 위해 Expo Managed에서 Bare Workflow로 변경합니다.
+react-native-google-mobile-ads는 네이티브 코드가 포함되었기 때문에 일반적인 expo 환경에서는 작동되지 않습니다.
+따라서 광고 ID 표기를 위한 작업을 진행하고, expo prebild를 통해 해당 라이브러리가 정상적으로 작동할 수 있도록 했습니다.
+
+https://docs.page/invertase/react-native-google-mobile-ads
+공식문서를 기반으로 작업을 진행했습니다.
+
+먼저 react-native-google-mobile-ads를 설치합니다.
+
+```bash
+npx expo install react-native-google-mobile-ads
+```
+
+그리고 ios에 대한 사전 빌드 설정을 하기 위해 expo-build-properties를 설치하고 필요한 작업을 진행합니다.
+
+```bash
+npx expo install expo-build-properties
+```
+
+app.json
+
+```json
+// <project-root>/app.json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ]
+    ]
+  }
+}
+```
+
+이후 abmob에 가입하고 ios와 안드로이드 각각의 광고 ID를 발급합니다.
+
+안드로이드
+앱 id: ca-app-pub-7966483738802412~6203423606
+광고 id: ca-app-pub-7966483738802412/1327760623
+
+ios
+앱 id: ca-app-pub-7966483738802412~4967622735
+광고 id: ca-app-pub-7966483738802412/7905014941
+
+여기서 앱 id를 app.json에 입력해 줍니다.
+
+```json
+// <project-root>/app.json
+{
+  "expo": {
+    "plugins": [
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-7966483738802412~6203423606",
+          "iosAppId": "ca-app-pub-7966483738802412~4967622735"
+        }
+      ]
+    ]
+  }
+}
+```
+
+이제 배너 광고가 웹뷰 하단에 표시되도록 webview.tsx에 코드를 추가합니다.
+
+```tsx
+...
+import {
+  TestIds,
+  BannerAd,
+  BannerAdSize,
+  useForeground,
+} from "react-native-google-mobile-ads";
+
+...
+
+export default function WebViewLayout() {
+
+  ...
+
+  const bannerRef = useRef<BannerAd>(null);
+
+  // 개발 모드의 경우 테스트 id 사용
+  let adUnitId = __DEV__
+    ? TestIds.ADAPTIVE_BANNER
+    : "ca-app-pub-7966483738802412/1327760623";
+
+  if (Platform.OS === "ios") {
+    adUnitId = __DEV__
+      ? TestIds.ADAPTIVE_BANNER
+      : "ca-app-pub-7966483738802412/7905014941";
+  }
+
+  ...
+
+  // iOS의 경우 앱이 백그라운드에서 포그라운드로 돌아왔을 때 광고 배너가 비어있는 것을 방지
+  useForeground(() => {
+    Platform.OS === "ios" && bannerRef.current?.load();
+  });
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <WebView
+        ref={ref}
+        onNavigationStateChange={(e) => setNavState(e)}
+        style={styles.webview}
+        source={{ uri: url }}
+      />
+      <BannerAd
+        ref={bannerRef}
+        unitId={adUnitId}
+        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+      />
+    </SafeAreaView>
+  );
+}
+```
+
+이제 prebuild 후 npx expo run 명령어를 통해 앱을 빌드하고 테스트를 진행합니다.
+
+```bash
+npx expo prebuild
+
+npx expo run
+```
+
+애뮬레이터를 통해 각각 확인할 수 있습니다.
 
 <br />
 <br />
 
 ## 주요 기능 - UI 디자인 및 사용자 경험
+
+사용자 경험 향상 고려해 다음과 같은 기능을 구현했습니다.
+
+1. 접속하고 싶은 url 입력시 입력한 웹사이트를 보여주는 웹뷰 스크린으로 이동
+2. 방문했던 url을 기록하고, 기록된 url에 바로 재방문할 수 있게 링크 연결
+
+이를 구현하기 위해 방문기록을 저장하는 HistoryContext를 구현했습니다.
+
+```ts
+import { createContext, useState, ReactNode } from "react";
+
+export interface HistoryContextType {
+  history: string[];
+  addHistory: (url: string) => void;
+}
+
+export const HistoryContext = createContext<HistoryContextType>({
+  history: [],
+  addHistory: () => {},
+});
+
+export const HistoryProvider = ({ children }: { children: ReactNode }) => {
+  const [history, setHistory] = useState<string[]>([]);
+
+  const addHistory = (url: string) => {
+    setHistory((prev) => {
+      const newHistory = [url, ...prev.filter((item) => item !== url)];
+      return newHistory;
+    });
+  };
+
+  return (
+    <HistoryContext.Provider value={{ history, addHistory }}>
+      {children}
+    </HistoryContext.Provider>
+  );
+};
+```
+
+위에서 구현한 HistoryProvider로 최상단 컴포넌트를 감싸고
+
+```tsx
+import { Stack } from "expo-router";
+import { HistoryProvider } from "./contexts/HistoryContext";
+
+export default function RootLayout() {
+  return (
+    <HistoryProvider>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="webview" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+    </HistoryProvider>
+  );
+}
+```
+
+메인 스크린(app/(tabs)/index.tsx)에서 url을 입력하고 Go 버튼을 클릭했을 때, HistoryContext에서 addHistory를 불러와 입력한 url을 저장해 줍니다.
+
+```tsx
+import { useContext, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  TextInput,
+  Button,
+} from "react-native";
+import { HistoryContext } from "../contexts/HistoryContext";
+import { useRouter } from "expo-router";
+
+export default function Index() {
+  const [url, setUrl] = useState("");
+  const { addHistory } = useContext(HistoryContext); // addHistory 불러오기
+  const { push } = useRouter();
+
+  const handleGoBtn = () => {
+    if (!url) return;
+
+    const formatUrl = url.startsWith("http") ? url : `https://${url}/`;
+    console.log("url", formatUrl);
+    addHistory(formatUrl); // 입력한 url을 기록
+    push({
+      pathname: "/webview",
+      params: { url: formatUrl },
+    });
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>접속하고자 하는 url을 입력해주세요 😀</Text>
+      <View style={{ flexDirection: "row" }}>
+        <TextInput
+          value={url}
+          onChangeText={setUrl}
+          placeholder="https://example.com"
+          style={styles.input}
+        />
+        <Button title="Go" onPress={handleGoBtn} />
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+
+이렇게 기록한 url은 bottom navigation에서 history 버튼을 눌러 확인할 수 있습니다.
+
+```tsx
+import { useContext } from "react";
+import {
+  Text,
+  View,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
+import { HistoryContext } from "../contexts/HistoryContext";
+import { useRouter } from "expo-router";
+
+export default function HistoryScreen() {
+  const { history } = useContext(HistoryContext);
+  const { push } = useRouter();
+
+  const renderItem = ({ item }: { item: string }) => (
+    <TouchableOpacity
+      style={styles.item}
+      onPress={() =>
+        push({
+          pathname: "/webview",
+          params: { url: item },
+        })
+      }
+    >
+      <Text style={styles.itemText}>{item}</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {history.length === 0 ? (
+        <Text style={styles.emptytext}>입력한 URL이 없습니다.</Text>
+      ) : (
+        <View>
+          <Text style={styles.listtext}>방문 기록</Text>
+          <FlatList
+            data={history}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={renderItem}
+          />
+        </View>
+      )}
+    </SafeAreaView>
+  );
+}
+```
+
+그리고 전체 color를 검은색과 노란색 계열로 통일하여 UI적으로 편하게 앱을 이용할 수 있도록 설정했습니다.
+
+아래는 앱 사용 캡처본 입니다.
+
+이렇게 공부하면서 과제를 수행할 수 있게 해주셔서 감사합니다. React Native의 전체적인 개념을 빠르게 이해할 수 있었고, 이를 적용해 유의미한 앱 서비스를 개발할 수 있었습니다. 다시 한 번 감사드립니다.
