@@ -15,7 +15,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "com.google.android.gms.permission.AD_ID",
+        "com.google.android.gms.permission.AD_ID"
+      ],
+      "package": "com.djhwangjb.polycubefeReactNativetestHwangDongJun"
     },
     "web": {
       "bundler": "metro",
@@ -24,6 +29,21 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-7966483738802412~6203423606",
+          "iosAppId": "ca-app-pub-7966483738802412~4967622735"
+        }
+      ],
       [
         "expo-splash-screen",
         {
