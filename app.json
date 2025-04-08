@@ -30,21 +30,6 @@
     "plugins": [
       "expo-router",
       [
-        "expo-build-properties",
-        {
-          "ios": {
-            "useFrameworks": "static"
-          }
-        }
-      ],
-      [
-        "react-native-google-mobile-ads",
-        {
-          "androidAppId": "ca-app-pub-7966483738802412~6203423606",
-          "iosAppId": "ca-app-pub-7966483738802412~4967622735"
-        }
-      ],
-      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
