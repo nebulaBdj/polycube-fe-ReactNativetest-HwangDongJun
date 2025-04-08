@@ -5,16 +5,9 @@ import {
   SafeAreaView,
   Dimensions,
   BackHandler,
-  Platform,
 } from "react-native";
 import WebView from "react-native-webview";
 import { WebViewNavigation } from "react-native-webview";
-import {
-  TestIds,
-  BannerAd,
-  BannerAdSize,
-  useForeground,
-} from "react-native-google-mobile-ads";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -24,18 +17,6 @@ export default function WebViewLayout() {
 
   const ref = useRef<WebView>(null);
   const [navState, setNavState] = useState<WebViewNavigation>();
-
-  const bannerRef = useRef<BannerAd>(null);
-
-  let adUnitId = __DEV__
-    ? TestIds.ADAPTIVE_BANNER
-    : "ca-app-pub-7966483738802412/1327760623";
-
-  if (Platform.OS === "ios") {
-    adUnitId = __DEV__
-      ? TestIds.ADAPTIVE_BANNER
-      : "ca-app-pub-7966483738802412/7905014941";
-  }
 
   useEffect(() => {
     if (!navState) return;
@@ -56,11 +37,6 @@ export default function WebViewLayout() {
     };
   }, [navState, setNavState]);
 
-  // iOS의 경우 앱이 백그라운드에서 포그라운드로 돌아왔을 때 광고 배너가 비어있는 것을 방지
-  useForeground(() => {
-    Platform.OS === "ios" && bannerRef.current?.load();
-  });
-
   return (
     <SafeAreaView style={styles.container}>
       <WebView
@@ -68,11 +44,6 @@ export default function WebViewLayout() {
         onNavigationStateChange={(e) => setNavState(e)}
         style={styles.webview}
         source={{ uri: url }}
-      />
-      <BannerAd
-        ref={bannerRef}
-        unitId={adUnitId}
-        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
       />
     </SafeAreaView>
   );
