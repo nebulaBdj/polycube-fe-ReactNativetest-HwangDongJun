@@ -346,10 +346,17 @@ export default function WebViewLayout() {
 
 ## 주요 기능 - 광고 ID 읽기 및 표시
 
+우선 광고 ID란 앱 마케팅이나 광고 트레킹에 사용되며, 사용자의 동의가 필요한 민감한 정보이기 때문에 권한 처리와 네이티브 코드 작업이 필요합니다.
+
+- IDFA: iOS 기기의 광고 식별자 (Identifier for Advertisers)
+- GAID (또는 ADID): Android 기기의 광고 식별자 (Google Advertising ID)
+
+## 추가 기능 - 구글 admob 배너 광고 적용
+
 확장성을 고려해 구글의 admob을 이용하기로 결정했습니다. 그래서 abmob을 편리하게 이용할 수 있는 react-native-google-mobile-ads를 사용합니다.
 
-react-native-google-mobile-ads는 네이티브 코드가 포함되었기 때문에 일반적인 expo 환경에서는 작동되지 않습니다.
-따라서 광고 ID 표기를 위한 작업을 진행하고, expo prebild를 통해 해당 라이브러리가 정상적으로 작동할 수 있도록 했습니다.
+react-native-google-mobile-ads는 네이티브 코드가 포함되었기 때문에 위와 동일하게 일반적인 expo 환경에서는 작동되지 않습니다.
+따라서 광고 ID 표기를 위한 작업을 진행하고, expo prebild를 통해 해당 라이브러리가 정상적으로 작동할 수 있도록 해야합니다.
 
 https://docs.page/invertase/react-native-google-mobile-ads
 공식문서를 기반으로 작업을 진행했습니다.
