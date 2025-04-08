@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.djhwangjb.polycubefeReactNativetestHwangDongJun"
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +18,6 @@
         "backgroundColor": "#ffffff"
       },
       "permissions": [
-        "com.google.android.gms.permission.AD_ID",
         "com.google.android.gms.permission.AD_ID"
       ],
       "package": "com.djhwangjb.polycubefeReactNativetestHwangDongJun"
