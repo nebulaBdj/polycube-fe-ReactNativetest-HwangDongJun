@@ -10,6 +10,9 @@ import {
 } from "react-native";
 import { HistoryContext } from "../contexts/HistoryContext";
 import WebViewLayout from "../contexts/WebViewLayout";
+import ReactNativeIdfaAaid, {
+  AdvertisingInfoResponse,
+} from "@sparkfabrik/react-native-idfa-aaid";
 
 interface WebViewState {
   url: string;
@@ -17,12 +20,26 @@ interface WebViewState {
 }
 
 export default function Index() {
-  const [inputurl, setInputUrl] = useState("");
+  const [inputurl, setInputUrl] = useState<string>("");
+  const [adverstingID, setAdverstingID] = useState<string | null>();
   const [webViewState, setWebViewState] = useState<WebViewState>({
     url: "",
     isOpen: false,
   });
   const { addHistory } = useContext(HistoryContext);
+
+  useEffect(() => {
+    ReactNativeIdfaAaid.getAdvertisingInfoAndCheckAuthorization(true)
+      .then((res: AdvertisingInfoResponse) =>
+        !res.isAdTrackingLimited
+          ? setAdverstingID(res.id)
+          : setAdverstingID(null)
+      )
+      .catch((err) => {
+        console.error(err);
+        return setAdverstingID(null);
+      });
+  }, []);
 
   useEffect(() => {
     const onBackPress = () => {
@@ -52,17 +69,21 @@ export default function Index() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={{ flex: 1 }}>
       {webViewState.isOpen ? (
         <View style={{ flex: 1 }}>
           <WebViewLayout url={webViewState.url} />
-          <Button
-            title="Back"
-            onPress={() => setWebViewState({ ...webViewState, isOpen: false })}
-          />
+          <View style={styles.floatingBackButton}>
+            <Button
+              title="Exit"
+              onPress={() =>
+                setWebViewState({ ...webViewState, isOpen: false })
+              }
+            />
+          </View>
         </View>
       ) : (
-        <>
+        <View style={styles.container}>
           <Text style={styles.title}>
             접속하고자 하는 url을 입력해주세요 😀
           </Text>
@@ -75,8 +96,15 @@ export default function Index() {
             />
             <Button title="Go" onPress={handleGoBtn} />
           </View>
-        </>
+        </View>
       )}
+      <View style={styles.adIdBanner}>
+        <Text style={styles.adIdText}>
+          {adverstingID
+            ? `adversting ID: ${adverstingID}`
+            : "광고 ID를 불러올 수 없습니다."}
+        </Text>
+      </View>
     </SafeAreaView>
   );
 }
@@ -101,5 +129,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     color: "#fff",
     borderRadius: 10,
+  },
+  adIdBanner: {
+    position: "fixed",
+    bottom: 0,
+    backgroundColor: "#fff",
+    padding: 10,
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderColor: "#ccc",
+  },
+  adIdText: {
+    fontSize: 12,
+    color: "#333",
+  },
+  floatingBackButton: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
   },
 });

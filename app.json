@@ -17,9 +17,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": [
-        "com.google.android.gms.permission.AD_ID"
-      ],
+      "permissions": ["com.google.android.gms.permission.AD_ID"],
       "package": "com.djhwangjb.polycubefeReactNativetestHwangDongJun"
     },
     "web": {
@@ -38,7 +36,12 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-tracking-transparency"
+      [
+        "expo-tracking-transparency",
+        {
+          "userTrackingPermission": "..."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
