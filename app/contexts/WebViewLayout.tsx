@@ -1,4 +1,3 @@
-import { useGlobalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
@@ -12,9 +11,7 @@ import { WebViewNavigation } from "react-native-webview";
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-export default function WebViewPage() {
-  const { url } = useGlobalSearchParams<{ url: string }>();
-
+export default function WebViewLayout({ url }: { url: string }) {
   const ref = useRef<WebView>(null);
   const [navState, setNavState] = useState<WebViewNavigation>();
 

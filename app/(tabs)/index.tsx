@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,39 +6,77 @@ import {
   SafeAreaView,
   TextInput,
   Button,
+  BackHandler,
 } from "react-native";
 import { HistoryContext } from "../contexts/HistoryContext";
-import { useRouter } from "expo-router";
+import WebViewLayout from "../contexts/WebViewLayout";
+
+interface WebViewState {
+  url: string;
+  isOpen: boolean;
+}
 
 export default function Index() {
-  const [url, setUrl] = useState("");
+  const [inputurl, setInputUrl] = useState("");
+  const [webViewState, setWebViewState] = useState<WebViewState>({
+    url: "",
+    isOpen: false,
+  });
   const { addHistory } = useContext(HistoryContext);
-  const { push } = useRouter();
 
-  const handleGoBtn = () => {
-    if (!url) return;
+  useEffect(() => {
+    const onBackPress = () => {
+      if (webViewState.isOpen) {
+        setWebViewState({ ...webViewState, isOpen: false });
+        return true;
+      }
+      return false;
+    };
 
-    const formatUrl = url.startsWith("http") ? url : `https://${url}/`;
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      onBackPress
+    );
+    return () => backHandler.remove();
+  }, [webViewState]);
+
+  const handleGoBtn = async () => {
+    if (!inputurl) return;
+
+    const formatUrl = inputurl.startsWith("http")
+      ? inputurl
+      : `https://${inputurl}/`;
     console.log("url", formatUrl);
-    addHistory(formatUrl);
-    push({
-      pathname: "/webview",
-      params: { url: formatUrl },
-    });
+    await addHistory(formatUrl);
+    setWebViewState({ url: formatUrl, isOpen: true });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>접속하고자 하는 url을 입력해주세요 😀</Text>
-      <View style={{ flexDirection: "row" }}>
-        <TextInput
-          value={url}
-          onChangeText={setUrl}
-          placeholder="https://example.com"
-          style={styles.input}
-        />
-        <Button title="Go" onPress={handleGoBtn} />
-      </View>
+      {webViewState.isOpen ? (
+        <View style={{ flex: 1 }}>
+          <WebViewLayout url={webViewState.url} />
+          <Button
+            title="Back"
+            onPress={() => setWebViewState({ ...webViewState, isOpen: false })}
+          />
+        </View>
+      ) : (
+        <>
+          <Text style={styles.title}>
+            접속하고자 하는 url을 입력해주세요 😀
+          </Text>
+          <View style={{ flexDirection: "row" }}>
+            <TextInput
+              value={inputurl}
+              onChangeText={setInputUrl}
+              placeholder="https://example.com"
+              style={styles.input}
+            />
+            <Button title="Go" onPress={handleGoBtn} />
+          </View>
+        </>
+      )}
     </SafeAreaView>
   );
 }
