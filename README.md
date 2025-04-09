@@ -351,6 +351,79 @@ export default function WebViewLayout() {
 - IDFA: iOS 기기의 광고 식별자 (Identifier for Advertisers)
 - GAID (또는 ADID): Android 기기의 광고 식별자 (Google Advertising ID)
 
+이러한 각 기기의 고유 광고 ID를 편리하게 가져와 주는 react-native-idfa-aaid를 찾았고 이를 이용하기로 했습니다.
+
+```bash
+npm install @sparkfabrik/react-native-idfa-aaid
+```
+
+사용법은 매우 간단합니다. [깃허브 링크](https://github.com/sparkfabrik/sparkfabrik-react-native-idfa-aaid)에 따라 다음과 같이 적용하면 각 기기에 대한 광고 ID (IDFA, ADID)를 얻을 수 있습니다.
+
+iOS 14 버전 이상부터 사용자에게 동의를 구해야하기 때문에 expo-tracking-transparency를 설치하고 app.json plugin에 아래 코드를 넣어줍니다.
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-tracking-transparency",
+        {
+          "userTrackingPermission": "..."
+        }
+      ]
+    ]
+  }
+}
+```
+
+이후 id를 표시해야 하는 페이지에서 ReactNativeIdfaAaid와 AdvertisingInfoResponse를 가지고 와서 아래와 같이 사용해주면 됩니다.
+
+```tsx
+import ReactNativeIdfaAaid, { AdvertisingInfoResponse } from '@sparkfabrik/react-native-idfa-aaid';
+
+const MyComponent: React.FC = () => {
+  const [idfa, setIdfa] = useState<string | null>();
+
+  useEffect(() => {
+    ReactNativeIdfaAaid.getAdvertisingInfoAndCheckAuthorization(true)
+      .then((res: AdvertisingInfoResponse) =>
+        !res.isAdTrackingLimited ? setIdfa(res.id) : setIdfa(null),
+      )
+      .catch((err) => {
+        console.log(err);
+        return setIdfa(null);
+      });
+  }, []);
+```
+
+저는 각 광고 id를 모두 내포하는 의미를 잘 살리고자 adverstingID state를 만들어 광고 ID를 다루기로 결정했습니다. 그리고 해당 광고 ID를 하단 광고 배너처럼 보일 수 있도록 스타일을 지정했습니다. 또한 웹뷰를 보여주는 화면에서만 보이도록 웹뷰 스크린인 index.tsx의 하단에 고정했습니다.
+
+```tsx
+<View style={styles.adIdBanner}>
+  <Text style={styles.adIdText}>
+    {adverstingID
+      ? `adversting ID: ${adverstingID}`
+      : "광고 ID를 불러올 수 없습니다."}
+  </Text>
+</View>
+```
+
+```ts
+adIdBanner: {
+  position: "fixed",
+  bottom: 0,
+  backgroundColor: "#fff",
+  padding: 10,
+  alignItems: "center",
+  borderTopWidth: 1,
+  borderColor: "#ccc",
+},
+adIdText: {
+  fontSize: 12,
+  color: "#333",
+},
+```
+
 <br />
 <br />
 
@@ -358,8 +431,9 @@ export default function WebViewLayout() {
 
 사용자 경험 향상 고려해 다음과 같은 기능을 구현했습니다.
 
-1. 접속하고 싶은 url 입력시 입력한 웹사이트를 보여주는 웹뷰 스크린으로 이동
+1. 접속하고 싶은 url 입력시 입력한 웹사이트를 보여주는 웹뷰 표시
 2. 방문했던 url을 기록하고, 기록된 url에 바로 재방문할 수 있게 링크 연결
+3. 웹뷰에서 바로 홈 스크린으로 이동할 수 있는 EXIT 버튼 구현
 
 이를 구현하기 위해 방문기록을 저장하는 HistoryContext를 구현했습니다.
 
@@ -416,7 +490,7 @@ export default function RootLayout() {
 메인 스크린(app/(tabs)/index.tsx)에서 url을 입력하고 Go 버튼을 클릭했을 때, HistoryContext에서 addHistory를 불러와 입력한 url을 저장해 줍니다.
 
 ```tsx
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -424,38 +498,77 @@ import {
   SafeAreaView,
   TextInput,
   Button,
+  BackHandler,
 } from "react-native";
 import { HistoryContext } from "../contexts/HistoryContext";
-import { useRouter } from "expo-router";
+import WebViewLayout from "../contexts/WebViewLayout";
+import ReactNativeIdfaAaid, {
+  AdvertisingInfoResponse,
+} from "@sparkfabrik/react-native-idfa-aaid";
+
+interface WebViewState {
+  url: string;
+  isOpen: boolean;
+}
 
 export default function Index() {
-  const [url, setUrl] = useState("");
-  const { addHistory } = useContext(HistoryContext); // addHistory 불러오기
-  const { push } = useRouter();
+  const [inputurl, setInputUrl] = useState<string>("");
+  const [adverstingID, setAdverstingID] = useState<string | null>();
+  const [webViewState, setWebViewState] = useState<WebViewState>({
+    url: "",
+    isOpen: false,
+  });
+  const { addHistory } = useContext(HistoryContext);
+
+  ...
 
   const handleGoBtn = () => {
-    if (!url) return;
+    if (!inputurl) return;
 
-    const formatUrl = url.startsWith("http") ? url : `https://${url}/`;
+    const formatUrl = inputurl.startsWith("http")
+      ? inputurl
+      : `https://${inputurl}/`;
     console.log("url", formatUrl);
-    addHistory(formatUrl); // 입력한 url을 기록
-    push({
-      pathname: "/webview",
-      params: { url: formatUrl },
-    });
+    addHistory(formatUrl); ///// HistoryContext에 접속하는 url 기록
+    setWebViewState({ url: formatUrl, isOpen: true });
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>접속하고자 하는 url을 입력해주세요 😀</Text>
-      <View style={{ flexDirection: "row" }}>
-        <TextInput
-          value={url}
-          onChangeText={setUrl}
-          placeholder="https://example.com"
-          style={styles.input}
-        />
-        <Button title="Go" onPress={handleGoBtn} />
+    <SafeAreaView style={{ flex: 1 }}>
+      {webViewState.isOpen ? (
+        <View style={{ flex: 1 }}>
+          <WebViewLayout url={webViewState.url} />
+          <View style={styles.floatingBackButton}>
+            <Button
+              title="Exit"
+              onPress={() =>
+                setWebViewState({ ...webViewState, isOpen: false })
+              }
+            />
+          </View>
+        </View>
+      ) : (
+        <View style={styles.container}>
+          <Text style={styles.title}>
+            접속하고자 하는 url을 입력해주세요 😀
+          </Text>
+          <View style={{ flexDirection: "row" }}>
+            <TextInput
+              value={inputurl}
+              onChangeText={setInputUrl}
+              placeholder="https://example.com"
+              style={styles.input}
+            />
+            <Button title="Go" onPress={handleGoBtn} />
+          </View>
+        </View>
+      )}
+      <View style={styles.adIdBanner}>
+        <Text style={styles.adIdText}>
+          {adverstingID
+            ? `adversting ID: ${adverstingID}`
+            : "광고 ID를 불러올 수 없습니다."}
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -514,6 +627,103 @@ export default function HistoryScreen() {
 }
 ```
 
-그리고 전체 color를 검은색과 노란색 계열로 통일하여 UI적으로 편하게 앱을 이용할 수 있도록 설정했습니다.
+그리고 웹뷰를 표시할 때 사용자가 바로 홈 스크린으로 이동하고 싶을 경우를 고려하여 EXIT 버튼을 구현했습니다.
 
-이렇게 공부하면서 과제를 수행할 수 있게 해주셔서 감사합니다. React Native의 전체적인 개념을 빠르게 이해할 수 있었고, 이를 적용해 유의미한 앱 서비스를 개발할 수 있었습니다. 다시 한 번 감사드립니다.
+```tsx
+            <Button
+              title="Exit"
+              onPress={() =>
+                setWebViewState({ ...webViewState, isOpen: false })
+              }
+            />
+          </View>
+```
+
+```tsx
+  floatingBackButton: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+  },
+```
+
+마지막으로 전체 color를 검은색과 노란색 계열로 통일하여 UI적으로 편하게 앱을 이용할 수 있도록 설정했습니다.
+
+## 주요 기능 - 앱과 웹뷰 간의 통신 구현
+
+react-native-webview의 onMessage method를 활용하여 앱과 웹 간의 통신을 처리하고자 합니다. 웹뷰에서의 이벤트를 받아서 앱에서 메시지를 띄워주는 방식으로 구현했습니다.
+
+HistoryContext를 구현한 것과 같이 WebViewEvenLogContext를 구현하여 방문 기록과 함께 이벤트 로그를 표기하고자 합니다.
+
+그래서 먼저 WebView가 발생한 이벤트를 감지할 수 있도록 JavaScript 코드를 주입해줍니다.
+
+```tsx
+...
+
+  const injectedJavaScript = `
+    document.addEventListener("click", () => {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: "CLICK_EVENT", data: "User clicked on the page!" }));
+    });
+
+    document.addEventListener("scroll", () => {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: "SCROLL_EVENT", data: "User scrolled the page!" }));
+    });
+  `;
+
+...
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <WebView
+        ref={ref}
+        onNavigationStateChange={(e) => setNavState(e)}
+        style={styles.webview}
+        source={{ uri: url }}
+        injectedJavaScript={injectedJavaScript}
+        javaScriptEnabled={true}
+      />
+    </SafeAreaView>
+  );
+
+```
+
+그리고 이벤트가 발생했을 때 WebViewEventLogContext에 그 이벤트에 대한 데이터를 받아서 넣을 수 있도록 함수를 작성하고, onMessage에 해당 함수를 넣어줍니다.
+
+```tsx
+
+...
+
+  const handleWebViewEventMsg = (event: { nativeEvent: { data: string } }) => {
+    try {
+      const message = JSON.parse(event.nativeEvent.data);
+      addWebViewEventLog(`${message.type}: ${message.data}`);
+    } catch (error) {
+      console.error("Error parsing message:", error);
+    }
+  };
+
+...
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <WebView
+        ref={ref}
+        onNavigationStateChange={(e) => setNavState(e)}
+        style={styles.webview}
+        source={{ uri: url }}
+        injectedJavaScript={injectedJavaScript}
+        onMessage={handleWebViewEventMsg}a
+        javaScriptEnabled={true}
+      />
+    </SafeAreaView>
+  );
+
+```
+
+이제 history.tsx에 WebViewEventLogContext를 불러와 표시해주면 됩니다.
+
+## 실습 캡처본
+
+노트북이 window OS 기반이어서 ios에 대한 test는 진행하지 못했습니다. 그래도 빌드를 위해 Mac북을 구하여 ios를 빌드한 후 깃허브 레포지토리에 올려 받아서 작업을 진행했습니다. 완성한 앱의 캡처본입니다.
+
+이렇게 공부하면서 과제를 수행할 수 있게 해주셔서 감사합니다. 그리고 부족한 모습에도 기회를 주시고 기다려 주셔서 다시 한 번 정말 감사드립니다. React Native의 전체적인 개념을 빠르게 이해할 수 있었고, 이를 적용해 유의미한 앱 서비스를 개발할 수 있었습니다. 행복한 하루 보내시길 바랍니다.
