@@ -1,16 +1,7 @@
-import { createContext, useState, ReactNode } from "react";
+import { ReactNode, useState } from "react";
+import HistoryContext from "../contexts/HistoryContext";
 
-export interface HistoryContextType {
-  history: string[];
-  addHistory: (url: string) => void;
-}
-
-export const HistoryContext = createContext<HistoryContextType>({
-  history: [],
-  addHistory: () => {},
-});
-
-export const HistoryProvider = ({ children }: { children: ReactNode }) => {
+const HistoryProvider = ({ children }: { children: ReactNode }) => {
   const [history, setHistory] = useState<string[]>([]);
 
   const addHistory = (url: string) => {
@@ -26,3 +17,5 @@ export const HistoryProvider = ({ children }: { children: ReactNode }) => {
     </HistoryContext.Provider>
   );
 };
+
+export default HistoryProvider;
