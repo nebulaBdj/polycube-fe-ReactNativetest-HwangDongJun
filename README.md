@@ -726,4 +726,31 @@ HistoryContext를 구현한 것과 같이 WebViewEvenLogContext를 구현하여 
 
 노트북이 window OS 기반이어서 애뮬레이터를 이용해 android 테스트는 마쳤으나 ios에 대한 test는 진행하지 못했습니다. 그래도 빌드를 위해 Mac북을 구하여 ios를 빌드한 후 깃허브 레포지토리에 올려 받아서 작업을 진행했습니다. React Native의 구조와 코드를 익히는 과정은 어렵지 않았으나 처음 해보는 작업이어서 그런지 개발 환경 설정 과정에서 시간이 많이 소요됐습니다. 개발 환경 설정은 모두 완료된 상태이며, 이후 React Native에 대한 작업 혹은 과제를 수행하게된다면 2배 이상 빠르게 작업할 수 있습니다. 완성한 앱의 캡처본입니다.
 
+<table align="center">
+  <tbody>
+    <tr>
+      <td>
+        <img src="https://github.com/user-attachments/assets/0c3c7da3-046f-4cd2-b11b-f60700852957">
+      </td>
+      <td>
+        <img src="https://github.com/user-attachments/assets/60a3189d-ce1f-4e67-abb1-b820ba40bb67">
+      </td>
+      <td>
+        <img src="https://github.com/user-attachments/assets/2f2b09aa-894d-4751-9b97-6b38b46d2dcc">
+      </td>
+    </tr>
+    <tr>
+      <td align="center">홈 스크린 (URL 검색 상태)</td>
+      <td align="center">홈 스크린 (웹뷰 표시 상태)</td>
+      <td align="center">히스토리 스크린</td>
+    </tr>
+    <tr>
+      <td align="center">URL 검색 및 웹뷰, 광고 ID 표시</td>
+      <td align="center">EXIT 버튼 클릭시 바로 홈 스크린으로 이동</td>
+      <td align="center">방문한 웹과 발생한 이벤트를 기록</td>
+    </tr>
+  </tbody>
+</table>
+
+
 이렇게 공부하면서 과제를 수행할 수 있게 해주셔서 감사합니다. 그리고 부족한 모습에도 기회를 주시고 기다려 주셔서 다시 한 번 정말 감사드립니다. React Native의 전체적인 개념을 빠르게 이해할 수 있었고, 이를 적용해 유의미한 앱 서비스를 개발할 수 있었습니다. 행복한 하루 보내시길 바랍니다.
