@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import { HistoryContext } from "../contexts/HistoryContext";
 import { useRouter } from "expo-router";
+import HistoryContext from "../contexts/HistoryContext";
+import WebViewEventLogContext from "../contexts/WebViewEventLogContext";
 
 export default function HistoryScreen() {
   const { history } = useContext(HistoryContext);
+  const { webViewEventLogs } = useContext(WebViewEventLogContext);
   const { push } = useRouter();
 
   const renderItem = ({ item }: { item: string }) => (
@@ -37,6 +39,19 @@ export default function HistoryScreen() {
           <Text style={styles.listtext}>방문 기록</Text>
           <FlatList
             data={history}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={renderItem}
+          />
+        </View>
+      )}
+
+      {webViewEventLogs.length === 0 ? (
+        <Text style={styles.emptytext}>기록된 웹뷰 이벤트가 없습니다.</Text>
+      ) : (
+        <View>
+          <Text style={styles.listtext}>웹뷰 이벤트 로그</Text>
+          <FlatList
+            data={webViewEventLogs}
             keyExtractor={(item, index) => index.toString()}
             renderItem={renderItem}
           />
