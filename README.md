@@ -7,8 +7,10 @@
 4. [주요 기능 - 광고 ID 읽기 및 표시](https://github.com/nebulaBdj/polycube-fe-ReactNativetest-HwangDongJun?tab=readme-ov-file#%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5---%EA%B4%91%EA%B3%A0-id-%EC%9D%BD%EA%B8%B0-%EB%B0%8F-%ED%91%9C%EC%8B%9C)
 5. [주요 기능 - UI 디자인 및 사용자 경험](https://github.com/nebulaBdj/polycube-fe-ReactNativetest-HwangDongJun?tab=readme-ov-file#%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5---ui-%EB%94%94%EC%9E%90%EC%9D%B8-%EB%B0%8F-%EC%82%AC%EC%9A%A9%EC%9E%90-%EA%B2%BD%ED%97%98)
 6. [주요 기능 - 앱과 웹뷰 간의 통신 구현](https://github.com/nebulaBdj/polycube-fe-ReactNativetest-HwangDongJun?tab=readme-ov-file#%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5---%EC%95%B1%EA%B3%BC-%EC%9B%B9%EB%B7%B0-%EA%B0%84%EC%9D%98-%ED%86%B5%EC%8B%A0-%EA%B5%AC%ED%98%84)
-7. [느낀 점 & 어려웠던 점 & 실습 캡처본](https://github.com/nebulaBdj/2025-1-recruition-nebulaBdj/tree/main?tab=readme-ov-file#%EA%B3%BC%EC%A0%9C%EB%A5%BC-%EC%88%98%ED%96%89%ED%95%98%EB%A9%B4-%EB%8A%90%EB%82%80-%EC%A0%90--%EB%B0%B0%EC%9A%B4-%EC%A0%90--%EB%A7%8E%EC%9D%80-%EC%8B%9C%EA%B0%84%EC%9D%84-%ED%88%AC%EC%9E%90%ED%95%9C-%EB%B6%80%EB%B6%84)
+7. [느낀 점 & 어려웠던 점 & 실습 캡처본](https://github.com/nebulaBdj/polycube-fe-ReactNativetest-HwangDongJun?tab=readme-ov-file#%EB%8A%90%EB%82%80-%EC%A0%90--%EC%96%B4%EB%A0%A4%EC%9B%A0%EB%8D%98-%EC%A0%90--%EC%8B%A4%EC%8A%B5-%EC%BA%A1%EC%B2%98%EB%B3%B8)
 
+<br/>
+<br/>
 
 ## React Native 개념 이해 및 개발 환경 세팅
 
