@@ -1,5 +1,15 @@
 # Test React Native App
 
+## 목차
+1. [React Native 개념 이해 및 개발 환경 세팅](https://github.com/nebulaBdj/polycube-fe-ReactNativetest-HwangDongJun?tab=readme-ov-file#react-native-%EA%B0%9C%EB%85%90-%EC%9D%B4%ED%95%B4-%EB%B0%8F-%EA%B0%9C%EB%B0%9C-%ED%99%98%EA%B2%BD-%EC%84%B8%ED%8C%85)
+2. [주요 기능 - Bottom navigation 적용](https://github.com/nebulaBdj/polycube-fe-ReactNativetest-HwangDongJun?tab=readme-ov-file#%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5---bottom-navigation-%EC%A0%81%EC%9A%A9)
+3. [주요 기능 - 컨텐츠 표시](https://github.com/nebulaBdj/polycube-fe-ReactNativetest-HwangDongJun?tab=readme-ov-file#%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5---%EC%BB%A8%ED%85%90%EC%B8%A0-%ED%91%9C%EC%8B%9C)
+4. [주요 기능 - 광고 ID 읽기 및 표시](https://github.com/nebulaBdj/polycube-fe-ReactNativetest-HwangDongJun?tab=readme-ov-file#%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5---%EA%B4%91%EA%B3%A0-id-%EC%9D%BD%EA%B8%B0-%EB%B0%8F-%ED%91%9C%EC%8B%9C)
+5. [주요 기능 - UI 디자인 및 사용자 경험](https://github.com/nebulaBdj/polycube-fe-ReactNativetest-HwangDongJun?tab=readme-ov-file#%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5---ui-%EB%94%94%EC%9E%90%EC%9D%B8-%EB%B0%8F-%EC%82%AC%EC%9A%A9%EC%9E%90-%EA%B2%BD%ED%97%98)
+6. [주요 기능 - 앱과 웹뷰 간의 통신 구현](https://github.com/nebulaBdj/polycube-fe-ReactNativetest-HwangDongJun?tab=readme-ov-file#%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5---%EC%95%B1%EA%B3%BC-%EC%9B%B9%EB%B7%B0-%EA%B0%84%EC%9D%98-%ED%86%B5%EC%8B%A0-%EA%B5%AC%ED%98%84)
+7. [느낀 점 & 어려웠던 점 & 실습 캡처본](https://github.com/nebulaBdj/2025-1-recruition-nebulaBdj/tree/main?tab=readme-ov-file#%EA%B3%BC%EC%A0%9C%EB%A5%BC-%EC%88%98%ED%96%89%ED%95%98%EB%A9%B4-%EB%8A%90%EB%82%80-%EC%A0%90--%EB%B0%B0%EC%9A%B4-%EC%A0%90--%EB%A7%8E%EC%9D%80-%EC%8B%9C%EA%B0%84%EC%9D%84-%ED%88%AC%EC%9E%90%ED%95%9C-%EB%B6%80%EB%B6%84)
+
+
 ## React Native 개념 이해 및 개발 환경 세팅
 
 ### 제가 이해한 React Native에 대해서
@@ -722,7 +732,7 @@ HistoryContext를 구현한 것과 같이 WebViewEvenLogContext를 구현하여 
 
 이제 history.tsx에 WebViewEventLogContext를 불러와 표시해주면 됩니다.
 
-## 실습 캡처본
+## 느낀 점 & 어려웠던 점 & 실습 캡처본
 
 노트북이 window OS 기반이어서 애뮬레이터를 이용해 android 테스트는 마쳤으나 ios에 대한 test는 진행하지 못했습니다. 그래도 빌드를 위해 Mac북을 구하여 ios를 빌드한 후 깃허브 레포지토리에 올려 받아서 작업을 진행했습니다. React Native의 구조와 코드를 익히는 과정은 어렵지 않았으나 처음 해보는 작업이어서 그런지 개발 환경 설정 과정에서 시간이 많이 소요됐습니다. 개발 환경 설정은 모두 완료된 상태이며, 이후 React Native에 대한 작업 혹은 과제를 수행하게된다면 2배 이상 빠르게 작업할 수 있습니다. 완성한 앱의 캡처본입니다.
 
