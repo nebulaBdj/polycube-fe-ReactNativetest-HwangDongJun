@@ -8,8 +8,8 @@ import {
   Button,
   BackHandler,
 } from "react-native";
-import { HistoryContext } from "../contexts/HistoryContext";
-import WebViewLayout from "../contexts/WebViewLayout";
+import HistoryContext from "../contexts/HistoryContext";
+import WebViewLayout from "../components/WebViewLayout";
 import ReactNativeIdfaAaid, {
   AdvertisingInfoResponse,
 } from "@sparkfabrik/react-native-idfa-aaid";
@@ -57,14 +57,14 @@ export default function Index() {
     return () => backHandler.remove();
   }, [webViewState]);
 
-  const handleGoBtn = async () => {
+  const handleGoBtn = () => {
     if (!inputurl) return;
 
     const formatUrl = inputurl.startsWith("http")
       ? inputurl
       : `https://${inputurl}/`;
     console.log("url", formatUrl);
-    await addHistory(formatUrl);
+    addHistory(formatUrl);
     setWebViewState({ url: formatUrl, isOpen: true });
   };
 
