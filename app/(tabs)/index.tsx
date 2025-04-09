@@ -65,6 +65,7 @@ export default function Index() {
       : `https://${inputurl}/`;
     console.log("url", formatUrl);
     addHistory(formatUrl);
+    setInputUrl("");
     setWebViewState({ url: formatUrl, isOpen: true });
   };
 
